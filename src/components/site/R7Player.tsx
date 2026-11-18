@@ -48,8 +48,8 @@ export function R7Player() {
           </div>
         </div>
 
-        <div key={tab.id} className="grid animate-fade-up gap-4 p-4 sm:p-5 md:grid-cols-[1.4fr_1fr]">
-          <div className="scanline relative aspect-video overflow-hidden rounded-2xl border border-border">
+        <div key={tab.id} className="grid animate-fade-up gap-4 p-4 sm:p-5 md:grid-cols-[1fr_1.4fr]">
+          <div className="scanline relative order-1 aspect-video overflow-hidden rounded-2xl border border-border md:order-2">
             <img src={tvImage} alt="TV online com canais, filmes e séries" className="size-full scale-105 object-cover saturate-150 brightness-110" />
             <div className="absolute inset-0 bg-gradient-to-t from-surface-deep/90 via-surface-deep/10 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/25 via-transparent to-neon-pink/25" />
@@ -72,7 +72,7 @@ export function R7Player() {
             </div>
           </div>
 
-          <ul className="grid content-start gap-2">
+          <ul className="grid order-2 content-start gap-2 md:order-1">
             {tab.items.map((item, i) => (
               <li key={item}>
                 <Link

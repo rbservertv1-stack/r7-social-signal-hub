@@ -10,7 +10,7 @@ function linkProps(n: SocialNetwork) {
 /** Compact round icon buttons (header, footer, floating dock). */
 export function SocialIconRow({ className, size = "md" }: { className?: string; size?: "sm" | "md" }) {
   return (
-    <div className={cn("flex flex-wrap items-center gap-2", className)}>
+    <div className={cn("grid grid-cols-4 gap-2 sm:flex sm:flex-wrap sm:items-center", className)}>
       {SOCIAL_NETWORKS.map((n) => (
         <a
           key={n.id}

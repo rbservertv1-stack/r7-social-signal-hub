@@ -7,4 +7,5 @@
 - [x] Testar o player no navegador (carregar grade, sintonizar canal, voltar ao site)
 - [x] Clarear o site (fundo menos escuro) e deixar os ícones mais chamativos
 - [x] Deixar a imagem/seção do R7 Player mais chamativa (hoje está escura)
+- [x] Player no celular: vídeo em cima, lista de canais logo abaixo, sem áreas vazias
 - [ ] Colocar os links reais das redes sociais quando o cliente enviar

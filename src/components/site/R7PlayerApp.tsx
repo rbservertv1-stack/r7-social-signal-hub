@@ -10,7 +10,6 @@ import {
   Film,
   Loader2,
   ListVideo,
-  Menu,
   Plus,
   Radio,
   Search,
@@ -114,7 +113,6 @@ export function R7PlayerApp() {
   const [dead, setDead] = useState<Record<string, 1>>({});
   const [alive, setAlive] = useState<Record<string, 1>>({});
   const [autoSkip, setAutoSkip] = useState(true);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [clock, setClock] = useState("");
 
   // formulário Xtream
@@ -221,7 +219,6 @@ export function R7PlayerApp() {
       setProgram("");
       setErrorMsg("");
       setStage("loading");
-      setMenuOpen(false);
       setRecent((r) => [ch.u, ...r.filter((u) => u !== ch.u)].slice(0, 30));
       if (ch.chId && typeof history !== "undefined") {
         history.replaceState(null, "", `#${encodeURIComponent(ch.chId)}`);
@@ -608,15 +605,6 @@ export function R7PlayerApp() {
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-surface-deep text-foreground">
       <header className="relative z-40 flex h-14 shrink-0 items-center gap-2 border-b border-border/60 bg-surface-deep/95 px-3 backdrop-blur-xl sm:gap-3 sm:px-4">
-        <button
-          type="button"
-          onClick={() => setMenuOpen(true)}
-          className="social-btn grid size-9 shrink-0 place-items-center rounded-xl lg:hidden"
-          aria-label="Abrir lista de canais"
-        >
-          <Menu className="social-icon size-4" />
-        </button>
-
         <Link
           to="/"
           className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground transition-all hover:border-neon-cyan/50 hover:bg-neon-cyan/10 hover:text-neon-cyan"
@@ -656,36 +644,12 @@ export function R7PlayerApp() {
         </div>
       </header>
 
-      <div className="relative flex min-h-0 flex-1">
-        {menuOpen && (
-          <button
-            type="button"
-            aria-label="Fechar lista"
-            onClick={() => setMenuOpen(false)}
-            className="absolute inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden"
-          />
-        )}
-
+      <div className="relative flex min-h-0 flex-1 flex-col lg:flex-row">
         <aside
           className={cn(
-            "absolute inset-y-0 left-0 z-40 flex w-[86%] max-w-[340px] flex-col border-r border-border/60 bg-surface-deep/98 backdrop-blur-xl transition-transform duration-300 lg:static lg:z-auto lg:w-[330px] lg:translate-x-0 lg:bg-surface-deep/70",
-            menuOpen ? "translate-x-0" : "-translate-x-full",
+            "order-2 flex h-[46vh] w-full flex-col border-t border-border/60 bg-surface-deep/80 lg:static lg:order-none lg:z-auto lg:h-auto lg:w-[330px] lg:max-w-[340px] lg:border-r lg:border-t-0 lg:bg-surface-deep/70 lg:backdrop-blur-xl",
           )}
         >
-          <div className="flex items-center justify-between px-3 pt-3 lg:hidden">
-            <span className="font-display text-xs font-black uppercase tracking-[0.2em]">
-              Canais
-            </span>
-            <button
-              type="button"
-              onClick={() => setMenuOpen(false)}
-              className="social-btn grid size-8 place-items-center rounded-lg"
-              aria-label="Fechar lista de canais"
-            >
-              <X className="social-icon size-3.5" />
-            </button>
-          </div>
-
           <div className="px-3 pt-3">
             <div className="glass flex items-center gap-2 rounded-xl px-3 py-2">
               <Search className="size-3.5 shrink-0 text-neon-cyan" />
@@ -879,14 +843,14 @@ export function R7PlayerApp() {
           )}
 
           <div className="mt-3 max-h-24 overflow-y-auto px-3">
-            <div className="flex flex-wrap gap-1">
+            <div className="flex gap-1 overflow-x-auto pb-1 lg:flex-wrap lg:overflow-x-visible">
               {categories.map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setCat(c)}
                   className={cn(
-                    "rounded-full border px-2 py-1 font-mono text-[9px] uppercase tracking-[0.1em] transition-all",
+                    "shrink-0 rounded-full border px-2 py-1 font-mono text-[9px] uppercase tracking-[0.1em] transition-all",
                     cat === c
                       ? "border-neon-cyan/60 bg-neon-cyan/15 text-neon-cyan"
                       : "border-border/50 text-muted-foreground hover:border-neon-cyan/30 hover:text-foreground",
@@ -1006,8 +970,8 @@ export function R7PlayerApp() {
           </div>
         </aside>
 
-        <main className="flex min-w-0 flex-1 flex-col bg-surface-deep">
-          <div className="flex min-h-0 flex-1 items-center justify-center p-3 sm:p-5">
+        <main className="order-1 flex min-w-0 flex-1 flex-col bg-surface-deep lg:order-none">
+          <div className="flex min-h-0 flex-1 items-start justify-center p-3 sm:p-5 lg:items-center">
             <div className="scanline border-animated relative aspect-video max-h-full w-full max-w-[calc((100dvh-13rem)*1.777)] overflow-hidden rounded-2xl bg-black/50">
             <video
               ref={videoRef}
@@ -1082,7 +1046,7 @@ export function R7PlayerApp() {
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-3 border-t border-border/60 bg-surface-deep/95 px-3 py-2.5 backdrop-blur-xl">
+          <div className="flex shrink-0 items-center gap-3 border-t border-border/60 bg-surface-deep/95 px-3 pb-[max(0.625rem,env(safe-area-inset-bottom))] pt-2.5 backdrop-blur-xl">
             <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-lg border border-white/10 bg-mat/90 font-mono text-[10px] text-surface-deep">
               {current?.logo ? (
                 <img
@@ -1106,7 +1070,7 @@ export function R7PlayerApp() {
                   ? `Agora: ${program}`
                   : current
                     ? `${current.cc ? `${flagEmoji(current.cc)} ` : ""}${current.cat}${current.q ? ` · ${current.q}` : ""}`
-                    : "Busque, favorite e assista direto no navegador"}
+                    : ("Busque e assista")}
               </p>
             </div>
 

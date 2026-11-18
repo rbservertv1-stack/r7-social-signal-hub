@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -75,6 +76,23 @@ function SectionTitle({ kicker, title, text }: { kicker: string; title: string; 
 }
 
 function Index() {
+  // O botão flutuante sai do caminho quando as redes ou o rodapé estão na tela
+  const [nearSocial, setNearSocial] = useState(false);
+
+  useEffect(() => {
+    const targets = [
+      document.getElementById("redes"),
+      document.querySelector("footer"),
+    ].filter((el): el is HTMLElement => el instanceof HTMLElement);
+    if (!targets.length) return;
+    const io = new IntersectionObserver(
+      (entries) => setNearSocial(entries.some((e) => e.isIntersecting)),
+      { threshold: 0.12 },
+    );
+    targets.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
   return (
     <div id="inicio" className="relative overflow-x-hidden">
       <div className="tech-grid pointer-events-none absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,black,transparent_70%)]" />
@@ -191,7 +209,7 @@ function Index() {
               key={s.title}
               className="group relative overflow-hidden rounded-2xl border border-border bg-panel p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-neon-cyan/60 hover:shadow-neon"
             >
-              <span className="absolute right-5 top-5 font-mono text-xs font-semibold text-neon-cyan/70">
+              <span className="absolute right-5 top-5 font-mono text-xs font-semibold text-neon-cyan">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <span className={cn("icon-tile ring-spin relative grid size-16 place-items-center rounded-2xl text-surface-deep transition-all duration-300 group-hover:-translate-y-1 group-hover:scale-105", s.tile)}>
@@ -213,7 +231,7 @@ function Index() {
       </section>
 
       {/* Social */}
-      <section id="redes" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-16 sm:px-6">
+      <section id="redes" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-12 sm:px-6 sm:py-16">
         <div className="relative overflow-hidden rounded-3xl border border-border bg-panel p-6 sm:p-10">
           <div className="tech-grid pointer-events-none absolute inset-0 opacity-60" />
           <div className="relative">
@@ -224,25 +242,26 @@ function Index() {
       </section>
 
       {/* Footer */}
-      <footer className="mt-10 border-t border-border/60 bg-surface-deep/80">
-        <div className="mx-auto flex max-w-7xl flex-col items-center gap-6 px-4 pb-28 pt-10 sm:px-6 md:flex-row md:justify-between md:pr-56">
+      <footer className="mt-4 border-t border-border/60 bg-surface-deep/80">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-6 px-4 pb-20 pt-6 sm:px-6 md:flex-row md:justify-between md:pr-56">
           <Logo />
-          <SocialIconRow size="sm" className="justify-center" />
           <p className="font-mono text-xs text-muted-foreground">WhatsApp {WHATSAPP_DISPLAY}</p>
         </div>
       </footer>
 
       {/* Floating WhatsApp */}
-      <a
-        href={whatsappUrl("Olá, vim pelo site da R7")}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Fale conosco no WhatsApp"
-        className="social-btn social-whatsapp animate-pulse-ring fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full px-4 py-3 font-semibold sm:px-5"
-      >
-        <FaWhatsapp className="social-icon size-6" />
-        <span className="hidden text-sm sm:inline">Fale conosco</span>
-      </a>
+      {!nearSocial && (
+        <a
+          href={whatsappUrl("Olá, vim pelo site da R7")}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Fale conosco no WhatsApp"
+          className="social-btn social-whatsapp animate-pulse-ring fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full font-semibold sm:bottom-5 sm:right-5 sm:h-auto sm:w-auto sm:gap-2 sm:px-5 sm:py-3"
+        >
+          <FaWhatsapp className="social-icon size-6" />
+          <span className="hidden text-sm sm:inline">Fale conosco</span>
+        </a>
+      )}
     </div>
   );
 }
