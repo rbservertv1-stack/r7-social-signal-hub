@@ -10,7 +10,7 @@
 - [x] Player no celular: vídeo em cima, lista de canais logo abaixo, sem áreas vazias
 - [x] Canais grátis dos addons do Kodi (Pluto TV, Plex, Samsung TV Plus, Tubi, Brasil) no R7 Player
 - [x] Lista do Brasil enviada pelo cliente (iptv-com brazil.m3u) no R7 Player
-- [x] Lista m3u-fast-br (Free-TV já estava) no R7 Player
+- [x] Lista m3u-fast-br conferida (Pluto já entra; Runtime TV quase toda fora do ar, não entrou; Free-TV já estava)
 - [x] Lista iptvlegal (tv.meuted.io) no R7 Player
 - [x] Lista de filmes em domínio público (bitinfinitus pt) no R7 Player
 - [x] Ver listas do site m3u.cl (lista exige cadastro, não entra) para o R7 Player

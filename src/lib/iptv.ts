@@ -61,11 +61,6 @@ export const EXTRA_FEEDS: ExtraFeed[] = [
     url: "https://raw.githubusercontent.com/bitinfinitus/public-domain-catalog/main/catalog/pt/public_domain_master_pt.m3u8",
   },
   { name: "Canais do Brasil", url: "https://iptv-org.github.io/iptv/countries/br.m3u", cc: "BR" },
-  {
-    name: "Runtime TV",
-    url: "https://raw.githubusercontent.com/josemtocco/m3u-fast-br/main/playlists/runtime-tv.m3u",
-    cc: "BR",
-  },
   { name: "AutoM3U Brasil", url: "https://a.autom3u.com/playlist/country/br.m3u", cc: "BR" },
   { name: "Lista Brasil R7", url: "https://raw.githubusercontent.com/iptv-com/iptv/refs/heads/main/lists/brazil.m3u", cc: "BR" },
   { name: "Tubi", url: `${KODI_LISTS}/tubi_all.m3u`, cc: "US" },

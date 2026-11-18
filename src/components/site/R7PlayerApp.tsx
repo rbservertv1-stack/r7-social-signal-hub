@@ -995,7 +995,7 @@ export function R7PlayerApp() {
             />
 
             {stage !== "playing" && (
-              <div className="tech-grid absolute inset-0 grid place-items-center p-6">
+              <div className="tech-grid absolute inset-0 grid place-items-center p-3 sm:p-6">
                 {stage === "loading" && (
                   <div className="flex flex-col items-center gap-3 text-center">
                     <Loader2 className="size-8 animate-spin text-neon-violet" />
@@ -1037,12 +1037,15 @@ export function R7PlayerApp() {
                 )}
 
                 {stage === "external" && current && (
-                  <div className="flex max-w-sm flex-col items-center gap-3 text-center">
-                    <Radio className="size-8 text-neon-cyan" />
-                    <p className="font-display text-sm font-black uppercase tracking-[0.2em]">
+                  <div className="flex max-w-sm flex-col items-center gap-2 text-center sm:gap-3">
+                    <Radio className="hidden size-8 text-neon-cyan sm:block" />
+                    <p className="font-display text-xs font-black uppercase tracking-[0.2em] sm:text-sm">
                       Canal Pluto TV
                     </p>
-                    <p className="text-xs leading-relaxed text-muted-foreground">
+                    <p className="text-[11px] leading-snug text-muted-foreground sm:hidden">
+                      Grátis, abre no site do Pluto TV.
+                    </p>
+                    <p className="hidden text-xs leading-relaxed text-muted-foreground sm:block">
                       <span className="font-semibold text-foreground">{current.n}</span> é grátis, mas
                       só toca no site do Pluto TV — o mesmo canal do addon do Kodi. Abre em uma nova
                       aba, sem cadastro.
