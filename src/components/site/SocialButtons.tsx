@@ -37,12 +37,12 @@ export function SocialCards() {
         <a
           key={n.id}
           {...linkProps(n)}
-          className={cn("social-btn group flex items-center gap-3 rounded-2xl p-4", `social-${n.id}`)}
+          className={cn("social-btn group flex flex-col items-center gap-3 rounded-2xl p-4 text-center sm:flex-row sm:text-left", `social-${n.id}`)}
         >
           <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-surface-deep/60">
             <n.icon className="social-icon size-6" />
           </span>
-          <span className="min-w-0">
+          <span className="min-w-0 max-w-full">
             <span className="block font-display text-sm font-bold tracking-wide">{n.name}</span>
             <span className="block truncate text-xs opacity-75">{n.url ? n.handle : "Em breve"}</span>
           </span>

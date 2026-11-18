@@ -218,7 +218,7 @@ function Index() {
 
       {/* Footer */}
       <footer className="mt-10 border-t border-border/60 bg-surface-deep/80">
-        <div className="mx-auto flex max-w-7xl flex-col items-center gap-6 px-4 pb-28 pt-10 sm:px-6 md:flex-row md:pb-10 md:justify-between">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-6 px-4 pb-28 pt-10 sm:px-6 md:flex-row md:justify-between">
           <Logo />
           <SocialIconRow size="sm" className="justify-center" />
           <p className="font-mono text-xs text-muted-foreground">WhatsApp {WHATSAPP_DISPLAY}</p>
