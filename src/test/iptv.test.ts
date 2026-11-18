@@ -4,6 +4,7 @@ import {
   EXTRA_FEEDS,
   applyFeedMeta,
   externalWatchUrl,
+  isPortugueseChannel,
   mergeChannels,
   parseM3U,
 } from "@/lib/iptv";
@@ -76,14 +77,51 @@ describe("canais grátis dos addons do Kodi", () => {
     expect(ch?.cc).toBe("BR");
   });
 
-  it("Plex usa o país do group-title como bandeira", () => {
-    const plex = EXTRA_FEEDS.find((f) => f.name === "Plex")!;
-    const [ch] = applyFeedMeta(
-      parseM3U('#EXTINF:-1 group-title="Mexico",Canal MX\nhttps://a/mx.m3u8\n'),
-      plex,
+  it("Free-TV fica fora das listas marcadas como português e traz o país de cada canal", () => {
+    const freetv = EXTRA_FEEDS.find((f) => f.name === "Free-TV")!;
+    expect(freetv.lang).toBeUndefined();
+    const parsed = parseM3U(
+      '#EXTINF:-1 tvg-country="BR" group-title="Brazil",Canal BR\nhttps://a/br.m3u8\n#EXTINF:-1 tvg-country="DE" group-title="Germany",Kanal DE\nhttps://a/de.m3u8\n',
     );
-    expect(ch?.cc).toBe("MX");
-    expect(ch?.cat).toBe("Plex");
+    expect(parsed[0]?.cc).toBe("BR");
+    expect(parsed[1]?.cc).toBe("DE");
+    expect(applyFeedMeta(parsed, freetv).map((c) => c.n)).toEqual(["Canal BR"]);
+  });
+});
+
+describe("só canais em português", () => {
+  it("mantém canais do Brasil e de Portugal", () => {
+    expect(isPortugueseChannel("BR", "Globo RJ", "general")).toBe(true);
+    expect(isPortugueseChannel("PT", "RTP 1", "general")).toBe(true);
+  });
+
+  it("descarta canais de outros países", () => {
+    expect(isPortugueseChannel("US", "CNN US", "news")).toBe(false);
+    expect(isPortugueseChannel("MX", "Las Estrellas", "general")).toBe(false);
+    expect(isPortugueseChannel(null, "Canal 7", "other")).toBe(false);
+  });
+
+  it("descarta canal brasileiro que avisa ser em outra língua", () => {
+    expect(isPortugueseChannel("BR", "Esportes em Inglês", "esportes")).toBe(false);
+    expect(isPortugueseChannel(null, "Documentários em Alemão", "docs")).toBe(false);
+  });
+
+  it("guarda canal sem país quando o nome ou a categoria diz que é do Brasil", () => {
+    expect(isPortugueseChannel(null, "Canal Brasil Filmes", "filmes")).toBe(true);
+    expect(isPortugueseChannel(null, "Programação Portuguesa", "variedades")).toBe(true);
+  });
+
+  it("lista marcada como português passa inteira, sem filtro de país", () => {
+    const iptvlegal = EXTRA_FEEDS.find((f) => f.name === "IPTV Legal (Meu Tédio)")!;
+    expect(iptvlegal.lang).toBe("pt");
+    const parsed = parseM3U(
+      '#EXTINF:-1 group-title="Cinema",Filme Antigo\nhttps://a/filme.m3u8\n',
+    );
+    expect(applyFeedMeta(parsed, iptvlegal)).toHaveLength(1);
+  });
+
+  it("a lista do cliente (Xtream) não é filtrada por idioma", () => {
+    expect(EXTRA_FEEDS.every((f) => f.name !== "Xtream")).toBe(true);
   });
 });
 

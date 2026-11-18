@@ -42,68 +42,67 @@ export type ExtraFeed = {
   cc?: string;
   /** Categoria fixa no lugar do group-title. */
   cat?: string;
-  /** A lista usa o nome do país como group-title (Plex). */
-  countryGroups?: boolean;
+  /** A lista já é toda em português: passa direto pelo filtro de idioma. */
+  lang?: "pt";
 };
 
 const KODI_LISTS = "https://raw.githubusercontent.com/BuddyChewChew/app-m3u-generator/refs/heads/main/playlists";
 
 /**
  * Feeds públicos de reforço, carregados em segundo plano.
- * Os primeiros são os mesmos canais grátis e legais dos addons de TV do Kodi
- * (Pluto TV, Tubi, Plex, PVR IPTV Simple Client com a lista do Brasil).
+ * Só entram listas grátis e legais cujo conteúdo é em português
+ * (Pluto TV Brasil, IPTV Legal, filmes em domínio público, listas do Brasil).
  */
 export const EXTRA_FEEDS: ExtraFeed[] = [
-  { name: "Pluto TV Brasil", url: `${KODI_LISTS}/plutotv_br.m3u`, cc: "BR" },
-  { name: "IPTV Legal (Meu Tédio)", url: "https://tv.meuted.io/iptvlegal.m3u" },
+  { name: "Pluto TV Brasil", url: `${KODI_LISTS}/plutotv_br.m3u`, cc: "BR", lang: "pt" },
+  { name: "IPTV Legal (Meu Tédio)", url: "https://tv.meuted.io/iptvlegal.m3u", lang: "pt" },
   {
     name: "Filmes em domínio público",
     url: "https://raw.githubusercontent.com/bitinfinitus/public-domain-catalog/main/catalog/pt/public_domain_master_pt.m3u8",
+    lang: "pt",
   },
-  { name: "Canais do Brasil", url: "https://iptv-org.github.io/iptv/countries/br.m3u", cc: "BR" },
-  { name: "AutoM3U Brasil", url: "https://a.autom3u.com/playlist/country/br.m3u", cc: "BR" },
-  { name: "Lista Brasil R7", url: "https://raw.githubusercontent.com/iptv-com/iptv/refs/heads/main/lists/brazil.m3u", cc: "BR" },
-  { name: "Tubi", url: `${KODI_LISTS}/tubi_all.m3u`, cc: "US" },
-  { name: "Plex", url: `${KODI_LISTS}/plex_all.m3u`, cat: "Plex", countryGroups: true },
+  { name: "Canais do Brasil", url: "https://iptv-org.github.io/iptv/countries/br.m3u", cc: "BR", lang: "pt" },
+  { name: "AutoM3U Brasil", url: "https://a.autom3u.com/playlist/country/br.m3u", cc: "BR", lang: "pt" },
+  { name: "Lista Brasil R7", url: "https://raw.githubusercontent.com/iptv-com/iptv/refs/heads/main/lists/brazil.m3u", cc: "BR", lang: "pt" },
   { name: "Free-TV", url: "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8" },
-  { name: "FreecastHub", url: "https://raw.githubusercontent.com/freecasthub/public-iptv/main/playlist.m3u" },
-  { name: "Roku Channel", url: "https://raw.githubusercontent.com/BuddyChewChew/app-m3u-generator/refs/heads/main/playlists/roku_all.m3u" },
-  { name: "Samsung TV+", url: "https://apsattv.com/ssungusa.m3u" },
-  { name: "XUMO", url: "https://www.apsattv.com/xumo.m3u" },
-  { name: "LG Channels", url: "https://www.apsattv.com/lg.m3u" },
-  { name: "Local Now", url: "https://www.apsattv.com/localnow.m3u" },
-  { name: "DistroTV", url: "https://www.apsattv.com/distro.m3u" },
-  { name: "Xiaomi", url: "https://www.apsattv.com/xiaomi.m3u" },
-  { name: "Fire TV", url: "https://www.apsattv.com/firetv.m3u" },
-  { name: "Cineverse", url: "https://www.apsattv.com/cineverse.m3u" },
-  { name: "Klowd TV", url: "https://www.apsattv.com/klowd.m3u" },
-  { name: "TVpass", url: "https://tvpass.org/playlist/m3u" },
 ];
 
-const COUNTRY_CODES: Record<string, string> = {
-  "United States": "US",
-  Canada: "CA",
-  "United Kingdom": "GB",
-  Australia: "AU",
-  Mexico: "MX",
-  Spain: "ES",
-  France: "FR",
-  Germany: "DE",
-  Italy: "IT",
-  Brazil: "BR",
-  Brasil: "BR",
-  Argentina: "AR",
-  "New Zealand": "NZ",
-  India: "IN",
-};
+/** Países de língua portuguesa. */
+const PT_COUNTRIES = new Set(["BR", "PT"]);
 
-/** Aplica país e categoria da lista de origem aos canais lidos. */
+const stripAccents = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+/** "em inglês", "in Spanish": deixam claro que o áudio não é em português. */
+const FOREIGN_LANG_RE = new RegExp(
+  "\\b(?:em|in)\\s+(ingles|espanhol|espanol|alemao|aleman|deutsch|frances|francais|italiano|japones|coreano|chines|russo|arabe|hindi|turco|polones|holandes|sueco|noruegues|dinamarques|finlandes|grego|hebraico|persa|urdu|bengali|tailandes|vietnamita|indonesio|ucraniano|serbio|croata|tcheco|hungaro|bulgaro|romaniano)\\b",
+  "i",
+);
+
+/** Sinais de que o canal é brasileiro ou português mesmo sem país marcado. */
+const PT_HINT_RE = /(portugu[eê]s|brasil|brazil|brasileir|pt[-\s]?br|lusitan|angola|mo[cç]ambique)/i;
+
+/**
+ * O canal fala português?
+ * Serve para a grade geral e para as listas públicas; a lista do cliente
+ * (Xtream Codes ou arquivo próprio) nunca passa por aqui.
+ */
+export function isPortugueseChannel(cc: string | null, n: string, cat: string): boolean {
+  const code = (cc || "").toUpperCase();
+  const text = stripAccents(`${n} ${cat}`);
+  if (PT_COUNTRIES.has(code)) return !FOREIGN_LANG_RE.test(text);
+  if (code) return false;
+  return PT_HINT_RE.test(text) && !FOREIGN_LANG_RE.test(text);
+}
+
+/** Aplica país e categoria da lista de origem e mantém só o que é em português. */
 export function applyFeedMeta(list: RawChannel[], feed: ExtraFeed): RawChannel[] {
-  return list.map((c) => ({
-    ...c,
-    cc: feed.cc ?? (feed.countryGroups ? COUNTRY_CODES[c.cat] ?? null : c.cc),
-    cat: feed.cat ?? c.cat,
-  }));
+  return list
+    .map((c) => ({
+      ...c,
+      cc: feed.cc ?? c.cc,
+      cat: feed.cat ?? c.cat,
+    }))
+    .filter((c) => feed.lang === "pt" || isPortugueseChannel(c.cc, c.n, c.cat));
 }
 
 /** Arquivo de vídeo comum (filme .mp4 etc.), tocado direto pelo navegador sem hls.js. */
@@ -198,14 +197,18 @@ export async function loadApiChannels(): Promise<Channel[]> {
     if (!st.channel && !st.title) continue;
     seen.add(st.url);
     const meta = st.channel ? channelMap[st.channel] : undefined;
+    const n = meta ? meta.name : st.title || "Sem nome";
+    const cc = meta ? meta.country : null;
+    const cat = meta && meta.categories.length ? (meta.categories[0] ?? "other") : "other";
+    if (!isPortugueseChannel(cc, n, cat)) continue;
     list.push({
       id: nextId(),
       chId: st.channel || null,
-      n: meta ? meta.name : st.title || "Sem nome",
+      n,
       u: st.url,
       q: st.quality || null,
-      cc: meta ? meta.country : null,
-      cat: meta && meta.categories.length ? (meta.categories[0] ?? "other") : "other",
+      cc,
+      cat,
       logo: st.channel ? logoMap[st.channel] || null : null,
       source: "api",
     });
@@ -241,12 +244,13 @@ export function parseM3U(text: string): RawChannel[] {
       const name = s.match(/^#EXTINF:[^,"]*(?:"[^"]*"[^,"]*)*,(.*)$/)?.[1]?.trim();
       const group = s.match(/group-title="([^"]*)"/)?.[1];
       const logo = s.match(/tvg-logo="([^"]*)"/)?.[1];
+      const country = s.match(/tvg-country="([A-Za-z]{2})"/)?.[1]?.toUpperCase() ?? null;
       pending = {
         chId: null,
         n: (name || "Sem nome").replace(/\s*[ⓈⓎⒼⓉⒹ]/g, "").trim(),
         u: "",
         q: null,
-        cc: null,
+        cc: country,
         cat: group || "other",
         logo: logo || null,
         source: "feed",

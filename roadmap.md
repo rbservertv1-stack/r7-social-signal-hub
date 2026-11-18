@@ -16,4 +16,6 @@
 - [x] Ver listas do site m3u.cl (lista exige cadastro, não entra) para o R7 Player
 - [x] Ver o site autom3u.com (lista Brasil entrou) para o R7 Player
 - [x] Responder sobre OnePlay e Brazuka (não entram: conteúdo pago sem autorização)
+- [ ] Deixar só canais em português no R7 Player (tirar os de outros idiomas)
+- [ ] Contar quantos canais o player mostra depois do filtro de idioma
 - [ ] Colocar os links reais das redes sociais quando o cliente enviar
