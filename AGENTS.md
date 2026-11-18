@@ -28,3 +28,7 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+<!-- AGENT-MEMORY:BEGIN -->
+- Social network links and the WhatsApp number live only in `src/lib/social.ts`; every social button reads from it so a link change is one edit.
+<!-- AGENT-MEMORY:END -->

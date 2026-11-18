@@ -16,12 +16,20 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        neon: "btn-shine bg-neon text-accent-foreground font-semibold rounded-full shadow-neon hover:-translate-y-0.5 hover:shadow-glow-pink transition-all duration-300",
+        cyber:
+          "btn-shine clip-tech rounded-none border border-neon-cyan/60 bg-neon-cyan/10 text-foreground font-semibold uppercase tracking-[0.18em] hover:bg-neon-cyan hover:text-primary-foreground hover:shadow-glow-cyan transition-all duration-300",
+        glass:
+          "glass rounded-full text-foreground hover:border-neon-cyan/60 hover:shadow-glow-cyan hover:-translate-y-0.5 transition-all duration-300",
+        whatsapp:
+          "social-btn social-whatsapp rounded-full font-semibold",
       },
       size: {
         default: "h-9 px-4 py-2",
         sm: "h-8 rounded-md px-3 text-xs",
         lg: "h-10 rounded-md px-8",
         icon: "h-9 w-9",
+        xl: "h-14 px-8 text-base [&_svg]:size-5",
       },
     },
     defaultVariants: {
