@@ -8,4 +8,12 @@
 - [x] Clarear o site (fundo menos escuro) e deixar os ícones mais chamativos
 - [x] Deixar a imagem/seção do R7 Player mais chamativa (hoje está escura)
 - [x] Player no celular: vídeo em cima, lista de canais logo abaixo, sem áreas vazias
+- [x] Canais grátis dos addons do Kodi (Pluto TV, Plex, Samsung TV Plus, Tubi, Brasil) no R7 Player
+- [x] Lista do Brasil enviada pelo cliente (iptv-com brazil.m3u) no R7 Player
+- [x] Lista m3u-fast-br (Free-TV já estava) no R7 Player
+- [x] Lista iptvlegal (tv.meuted.io) no R7 Player
+- [x] Lista de filmes em domínio público (bitinfinitus pt) no R7 Player
+- [x] Ver listas do site m3u.cl (lista exige cadastro, não entra) para o R7 Player
+- [x] Ver o site autom3u.com (lista Brasil entrou) para o R7 Player
+- [x] Responder sobre OnePlay e Brazuka (não entram: conteúdo pago sem autorização)
 - [ ] Colocar os links reais das redes sociais quando o cliente enviar

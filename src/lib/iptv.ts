@@ -35,8 +35,41 @@ const CORS_PROXIES = [
   "https://proxy.killcors.com/?url=",
 ];
 
-/** Feeds públicos de reforço, carregados em segundo plano. */
-export const EXTRA_FEEDS: { name: string; url: string }[] = [
+export type ExtraFeed = {
+  name: string;
+  url: string;
+  /** País de todos os canais da lista (mostra a bandeira). */
+  cc?: string;
+  /** Categoria fixa no lugar do group-title. */
+  cat?: string;
+  /** A lista usa o nome do país como group-title (Plex). */
+  countryGroups?: boolean;
+};
+
+const KODI_LISTS = "https://raw.githubusercontent.com/BuddyChewChew/app-m3u-generator/refs/heads/main/playlists";
+
+/**
+ * Feeds públicos de reforço, carregados em segundo plano.
+ * Os primeiros são os mesmos canais grátis e legais dos addons de TV do Kodi
+ * (Pluto TV, Tubi, Plex, PVR IPTV Simple Client com a lista do Brasil).
+ */
+export const EXTRA_FEEDS: ExtraFeed[] = [
+  { name: "Pluto TV Brasil", url: `${KODI_LISTS}/plutotv_br.m3u`, cc: "BR" },
+  { name: "IPTV Legal (Meu Tédio)", url: "https://tv.meuted.io/iptvlegal.m3u" },
+  {
+    name: "Filmes em domínio público",
+    url: "https://raw.githubusercontent.com/bitinfinitus/public-domain-catalog/main/catalog/pt/public_domain_master_pt.m3u8",
+  },
+  { name: "Canais do Brasil", url: "https://iptv-org.github.io/iptv/countries/br.m3u", cc: "BR" },
+  {
+    name: "Runtime TV",
+    url: "https://raw.githubusercontent.com/josemtocco/m3u-fast-br/main/playlists/runtime-tv.m3u",
+    cc: "BR",
+  },
+  { name: "AutoM3U Brasil", url: "https://a.autom3u.com/playlist/country/br.m3u", cc: "BR" },
+  { name: "Lista Brasil R7", url: "https://raw.githubusercontent.com/iptv-com/iptv/refs/heads/main/lists/brazil.m3u", cc: "BR" },
+  { name: "Tubi", url: `${KODI_LISTS}/tubi_all.m3u`, cc: "US" },
+  { name: "Plex", url: `${KODI_LISTS}/plex_all.m3u`, cat: "Plex", countryGroups: true },
   { name: "Free-TV", url: "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8" },
   { name: "FreecastHub", url: "https://raw.githubusercontent.com/freecasthub/public-iptv/main/playlist.m3u" },
   { name: "Roku Channel", url: "https://raw.githubusercontent.com/BuddyChewChew/app-m3u-generator/refs/heads/main/playlists/roku_all.m3u" },
@@ -51,6 +84,46 @@ export const EXTRA_FEEDS: { name: string; url: string }[] = [
   { name: "Klowd TV", url: "https://www.apsattv.com/klowd.m3u" },
   { name: "TVpass", url: "https://tvpass.org/playlist/m3u" },
 ];
+
+const COUNTRY_CODES: Record<string, string> = {
+  "United States": "US",
+  Canada: "CA",
+  "United Kingdom": "GB",
+  Australia: "AU",
+  Mexico: "MX",
+  Spain: "ES",
+  France: "FR",
+  Germany: "DE",
+  Italy: "IT",
+  Brazil: "BR",
+  Brasil: "BR",
+  Argentina: "AR",
+  "New Zealand": "NZ",
+  India: "IN",
+};
+
+/** Aplica país e categoria da lista de origem aos canais lidos. */
+export function applyFeedMeta(list: RawChannel[], feed: ExtraFeed): RawChannel[] {
+  return list.map((c) => ({
+    ...c,
+    cc: feed.cc ?? (feed.countryGroups ? COUNTRY_CODES[c.cat] ?? null : c.cc),
+    cat: feed.cat ?? c.cat,
+  }));
+}
+
+/** Arquivo de vídeo comum (filme .mp4 etc.), tocado direto pelo navegador sem hls.js. */
+export function isDirectVideo(url: string): boolean {
+  return /\.(mp4|m4v|webm|ogv|mov)$/i.test(url.split(/[?#]/)[0] ?? "");
+}
+
+/**
+ * Canais do Pluto TV só liberam o sinal para o próprio site do Pluto TV.
+ * Para eles, o player oferece abrir o canal lá (grátis, sem cadastro).
+ */
+export function externalWatchUrl(url: string): string | null {
+  const id = url.match(/jmp2\.uk\/plu-([a-f0-9]{24})/i)?.[1];
+  return id ? `https://pluto.tv/br/live-tv/${id}` : null;
+}
 
 export function flagEmoji(cc: string | null): string {
   if (!cc || cc.length !== 2) return "🌐";
@@ -144,7 +217,9 @@ export async function loadApiChannels(): Promise<Channel[]> {
   }
 
   list.sort((a, b) => {
-    const score = (c: Channel) => (c.cc ? 2 : 0) + (c.logo ? 1 : 0);
+    // canais que tocam aqui vêm antes dos que só abrem no site do Pluto TV
+    const score = (c: Channel) =>
+      (c.cc ? 2 : 0) + (c.logo ? 1 : 0) - (externalWatchUrl(c.u) ? 4 : 0);
     const diff = score(b) - score(a);
     if (diff !== 0) return diff;
     return a.n.localeCompare(b.n);
@@ -167,7 +242,8 @@ export function parseM3U(text: string): RawChannel[] {
   for (const line of text.split("\n")) {
     const s = line.trim();
     if (s.startsWith("#EXTINF:")) {
-      const name = s.match(/,(.+)$/)?.[1]?.trim();
+      // o nome vem depois da primeira vírgula fora dos atributos entre aspas
+      const name = s.match(/^#EXTINF:[^,"]*(?:"[^"]*"[^,"]*)*,(.*)$/)?.[1]?.trim();
       const group = s.match(/group-title="([^"]*)"/)?.[1];
       const logo = s.match(/tvg-logo="([^"]*)"/)?.[1];
       pending = {
@@ -195,17 +271,34 @@ export function parseM3U(text: string): RawChannel[] {
   return out;
 }
 
-/** Junta canais novos à lista existente sem repetir URLs nem nomes. */
+/**
+ * Junta canais novos à lista existente sem repetir URLs nem nomes.
+ * Se o canal já existe só como link do Pluto TV e chega uma versão que toca aqui,
+ * a versão que toca substitui a antiga.
+ */
 export function mergeChannels(existing: Channel[], incoming: RawChannel[]): Channel[] {
   if (!incoming.length) return existing;
   const seen = new Set(existing.map((c) => c.u));
-  const names = new Set(existing.map((c) => normName(c.n)).filter(Boolean));
+  const names = new Map<string, number>();
+  existing.forEach((c, i) => {
+    const key = normName(c.n);
+    if (key && !names.has(key)) names.set(key, i);
+  });
   const out = existing.slice();
   for (const raw of incoming) {
+    if (!raw.u || seen.has(raw.u)) continue;
     const key = normName(raw.n);
-    if (!raw.u || seen.has(raw.u) || (key && names.has(key))) continue;
+    const at = key ? names.get(key) : undefined;
+    if (at !== undefined) {
+      const old = out[at];
+      if (old && externalWatchUrl(old.u) && !externalWatchUrl(raw.u)) {
+        out[at] = { ...raw, id: old.id };
+        seen.add(raw.u);
+      }
+      continue;
+    }
     seen.add(raw.u);
-    if (key) names.add(key);
+    if (key) names.set(key, out.length);
     out.push({ ...raw, id: nextId() });
   }
   return out;

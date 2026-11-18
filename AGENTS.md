@@ -31,4 +31,5 @@ use the editor.
 
 <!-- AGENT-MEMORY:BEGIN -->
 - Social network links and the WhatsApp number live only in `src/lib/social.ts`; every social button reads from it so a link change is one edit.
+- Player channel sources live only in `EXTRA_FEEDS` (`src/lib/iptv.ts`); add only free, legal lists (no pirate Kodi addons like OnePlay/Brazuka) so the site stays safe to publish.
 <!-- AGENT-MEMORY:END -->

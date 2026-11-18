@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { type Channel, mergeChannels, parseM3U } from "@/lib/iptv";
+import {
+  type Channel,
+  EXTRA_FEEDS,
+  applyFeedMeta,
+  externalWatchUrl,
+  mergeChannels,
+  parseM3U,
+} from "@/lib/iptv";
 
 const base: Channel = {
   id: 1,
@@ -45,5 +52,54 @@ describe("mergeChannels", () => {
     );
     expect(merged.map((c) => c.n)).toEqual(["R7 TV", "Novo Canal"]);
     expect(merged.at(-1)?.u).toBe("https://c/z.m3u8");
+  });
+});
+
+describe("canais grátis dos addons do Kodi", () => {
+  it("lê o nome certo mesmo com vírgula dentro dos atributos", () => {
+    const parsed = parseM3U(
+      '#EXTINF:-1 tvg-name="Filmes, Séries" group-title="Filmes",Pluto Filmes\nhttps://jmp2.uk/plu-5f12136385bccc00070142ed.m3u8\n',
+    );
+    expect(parsed[0]?.n).toBe("Pluto Filmes");
+  });
+
+  it("canais do Pluto TV abrem no site do Pluto TV Brasil", () => {
+    expect(externalWatchUrl("https://jmp2.uk/plu-5f12136385bccc00070142ed.m3u8")).toBe(
+      "https://pluto.tv/br/live-tv/5f12136385bccc00070142ed",
+    );
+    expect(externalWatchUrl("https://cdn/r7.m3u8")).toBeNull();
+  });
+
+  it("Pluto TV Brasil vem primeiro e marca os canais como do Brasil", () => {
+    expect(EXTRA_FEEDS[0]?.name).toBe("Pluto TV Brasil");
+    const [ch] = applyFeedMeta(parseM3U("#EXTINF:-1,Canal\nhttps://a/b.m3u8\n"), EXTRA_FEEDS[0]!);
+    expect(ch?.cc).toBe("BR");
+  });
+
+  it("Plex usa o país do group-title como bandeira", () => {
+    const plex = EXTRA_FEEDS.find((f) => f.name === "Plex")!;
+    const [ch] = applyFeedMeta(
+      parseM3U('#EXTINF:-1 group-title="Mexico",Canal MX\nhttps://a/mx.m3u8\n'),
+      plex,
+    );
+    expect(ch?.cc).toBe("MX");
+    expect(ch?.cat).toBe("Plex");
+  });
+});
+
+describe("prioridade de canais que tocam no site", () => {
+  it("troca o link do Pluto TV por uma versão do mesmo canal que toca aqui", () => {
+    const pluto: Channel = { ...base, n: "A&E Crime 360", u: "https://jmp2.uk/plu-5f12136385bccc00070142ed.m3u8" };
+    const merged = mergeChannels(
+      [pluto],
+      [{ chId: null, n: "A&E Crime 360", u: "https://tubi/live.m3u8", q: null, cc: "US", cat: "Crime", logo: null, source: "feed" }],
+    );
+    expect(merged).toHaveLength(1);
+    expect(merged[0]?.u).toBe("https://tubi/live.m3u8");
+    expect(merged[0]?.id).toBe(pluto.id);
+  });
+
+  it("a lista do Brasil enviada pelo cliente está no player", () => {
+    expect(EXTRA_FEEDS.some((f) => f.url.includes("iptv-com/iptv") && f.url.endsWith("brazil.m3u"))).toBe(true);
   });
 });

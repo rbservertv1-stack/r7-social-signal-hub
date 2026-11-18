@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
+  ExternalLink,
   Film,
   Loader2,
   ListVideo,
@@ -26,7 +27,10 @@ import {
   type Channel,
   type RawChannel,
   EXTRA_FEEDS,
+  applyFeedMeta,
   connectXtream,
+  externalWatchUrl,
+  isDirectVideo,
   fetchWithProxy,
   flagEmoji,
   loadApiChannels,
@@ -37,7 +41,7 @@ import {
 const LS = { favs: "r7_favs", recent: "r7_recent", custom: "r7_custom" } as const;
 
 type Tab = "all" | "favs" | "recent" | "custom";
-type Stage = "idle" | "loading" | "playing" | "error";
+type Stage = "idle" | "loading" | "playing" | "error" | "external";
 type Saved = { n: string; u: string };
 
 const MAX_ROWS = 400;
@@ -224,6 +228,12 @@ export function R7PlayerApp() {
         history.replaceState(null, "", `#${encodeURIComponent(ch.chId)}`);
       }
 
+      // Pluto TV: o sinal só abre no site deles, então oferecemos o link direto
+      if (externalWatchUrl(ch.u)) {
+        setStage("external");
+        return;
+      }
+
       const v = videoRef.current;
       if (!v) {
         setStage("error");
@@ -243,7 +253,8 @@ export function R7PlayerApp() {
         .then(({ default: Hls }) => {
           if (currentRef.current?.id !== ch.id) return;
 
-          if (Hls.isSupported()) {
+          // filmes em .mp4 tocam direto no vídeo do navegador; HLS passa pelo hls.js
+          if (Hls.isSupported() && !isDirectVideo(ch.u)) {
             const hls = new Hls({
               enableWorker: true,
               maxBufferLength: 15,
@@ -292,7 +303,7 @@ export function R7PlayerApp() {
             return;
           }
 
-          // Safari/iOS: HLS nativo, sem hls.js
+          // Safari/iOS (HLS nativo) e arquivos de filme
           v.src = ch.u;
           v.load();
           v.play()
@@ -385,7 +396,7 @@ export function R7PlayerApp() {
         setStatus(`Carregando ${feed.name}…`);
         try {
           const text = await fetchWithProxy(feed.url);
-          const parsed = parseM3U(text);
+          const parsed = applyFeedMeta(parseM3U(text), feed);
           setChannels((prev) => mergeChannels(prev, parsed));
           loaded++;
         } catch {
@@ -1020,6 +1031,37 @@ export function R7PlayerApp() {
                         className="glass rounded-xl px-4 py-2 font-display text-[10px] font-black uppercase tracking-[0.16em] transition-all hover:border-neon-cyan/50"
                       >
                         Tentar de novo
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {stage === "external" && current && (
+                  <div className="flex max-w-sm flex-col items-center gap-3 text-center">
+                    <Radio className="size-8 text-neon-cyan" />
+                    <p className="font-display text-sm font-black uppercase tracking-[0.2em]">
+                      Canal Pluto TV
+                    </p>
+                    <p className="text-xs leading-relaxed text-muted-foreground">
+                      <span className="font-semibold text-foreground">{current.n}</span> é grátis, mas
+                      só toca no site do Pluto TV — o mesmo canal do addon do Kodi. Abre em uma nova
+                      aba, sem cadastro.
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      <a
+                        href={externalWatchUrl(current.u) ?? "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-shine bg-neon inline-flex items-center gap-1.5 rounded-xl px-4 py-2 font-display text-[10px] font-black uppercase tracking-[0.16em] text-surface-deep transition-all hover:brightness-110"
+                      >
+                        <ExternalLink className="size-3.5" /> Assistir no Pluto TV
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => step(1)}
+                        className="glass rounded-xl px-4 py-2 font-display text-[10px] font-black uppercase tracking-[0.16em] transition-all hover:border-neon-cyan/50"
+                      >
+                        Próximo canal
                       </button>
                     </div>
                   </div>
