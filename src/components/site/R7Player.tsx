@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Play, Radio, Film, Clapperboard, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
-import tvImage from "@/assets/tv-streaming.jpg";
+import tvImage from "@/assets/tv-neon.jpg";
 
 const TABS = [
   { id: "live", label: "TV ao vivo", icon: Radio, title: "Canais ao vivo", text: "Seus canais e o guia de TV juntos, enquanto você navega.",
@@ -49,14 +50,16 @@ export function R7Player() {
 
         <div key={tab.id} className="grid animate-fade-up gap-4 p-4 sm:p-5 md:grid-cols-[1.4fr_1fr]">
           <div className="scanline relative aspect-video overflow-hidden rounded-2xl border border-border">
-            <img src={tvImage} alt="TV online com canais, filmes e séries" className="size-full object-cover opacity-90" />
-            <div className="absolute inset-0 bg-gradient-to-t from-surface-deep via-surface-deep/20 to-transparent" />
-            <button
-              aria-label="Assistir"
+            <img src={tvImage} alt="TV online com canais, filmes e séries" className="size-full scale-105 object-cover saturate-150 brightness-110" />
+            <div className="absolute inset-0 bg-gradient-to-t from-surface-deep/90 via-surface-deep/10 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/25 via-transparent to-neon-pink/25" />
+            <Link
+              to="/assistir"
+              aria-label="Assistir agora no R7 Player"
               className="btn-shine absolute left-1/2 top-1/2 grid size-16 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-neon text-accent-foreground shadow-glow-pink transition-transform duration-300 hover:scale-110"
             >
               <Play className="ml-1 size-7 fill-current" />
-            </button>
+            </Link>
             <span className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full glass px-3 py-1 font-mono text-[10px] tracking-widest text-neon-pink">
               <span className="size-1.5 animate-pulse rounded-full bg-neon-pink" /> AO VIVO · HD
             </span>
@@ -72,7 +75,8 @@ export function R7Player() {
           <ul className="grid content-start gap-2">
             {tab.items.map((item, i) => (
               <li key={item}>
-                <button
+                <Link
+                  to="/assistir"
                   className={cn(
                     "group flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left text-sm transition-all duration-300",
                     i === 0
@@ -82,7 +86,7 @@ export function R7Player() {
                 >
                   <span>{item}</span>
                   <Play className="size-3.5 text-neon-cyan opacity-0 transition-opacity group-hover:opacity-100" />
-                </button>
+                </Link>
               </li>
             ))}
           </ul>

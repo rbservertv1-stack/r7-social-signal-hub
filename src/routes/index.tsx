@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   Cctv,
@@ -14,10 +14,11 @@ import {
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { R7Player } from "@/components/site/R7Player";
 import { SocialCards, SocialIconRow } from "@/components/site/SocialButtons";
 import { WHATSAPP_DISPLAY, whatsappUrl } from "@/lib/social";
-import heroImage from "@/assets/hero-tech.jpg";
+import heroImage from "@/assets/bancada-viva.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -41,12 +42,12 @@ export const Route = createFileRoute("/")({
 });
 
 const SERVICES = [
-  { icon: Smartphone, title: "Manutenção de Celulares", text: "Diagnóstico, reparos e manutenção de smartphones." },
-  { icon: Laptop, title: "Computadores e Notebooks", text: "Formatação, upgrades, manutenção e suporte técnico." },
-  { icon: Wifi, title: "Internet e Redes", text: "Conectividade, configuração e soluções de rede." },
-  { icon: Tv, title: "IPTV e TV Online", text: "Entretenimento e configuração de TV online." },
-  { icon: Cctv, title: "Câmeras de Segurança", text: "Instalação, configuração e manutenção de CFTV." },
-  { icon: Truck, title: "Tele-entrega e Retirada", text: "Mais comodidade para levar e buscar equipamentos." },
+  { icon: Smartphone, title: "Manutenção de Celulares", text: "Diagnóstico, reparos e manutenção de smartphones.", tile: "tile-celular" },
+  { icon: Laptop, title: "Computadores e Notebooks", text: "Formatação, upgrades, manutenção e suporte técnico.", tile: "tile-pc" },
+  { icon: Wifi, title: "Internet e Redes", text: "Conectividade, configuração e soluções de rede.", tile: "tile-rede" },
+  { icon: Tv, title: "IPTV e TV Online", text: "Entretenimento e configuração de TV online.", tile: "tile-tv" },
+  { icon: Cctv, title: "Câmeras de Segurança", text: "Instalação, configuração e manutenção de CFTV.", tile: "tile-camera" },
+  { icon: Truck, title: "Tele-entrega e Retirada", text: "Mais comodidade para levar e buscar equipamentos.", tile: "tile-entrega" },
 ];
 
 function Logo() {
@@ -96,12 +97,18 @@ function Index() {
                 {label}
               </a>
             ))}
+            <Link
+              to="/assistir"
+              className="rounded-full px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            >
+              Assistir
+            </Link>
           </nav>
           <div className="ml-auto flex items-center gap-2 lg:ml-0">
             <Button asChild variant="glass" size="sm" className="hidden sm:inline-flex">
-              <a href="#player">
+              <Link to="/assistir">
                 <MonitorPlay /> Assista já
-              </a>
+              </Link>
             </Button>
             <Button asChild variant="neon" size="sm">
               <a href={whatsappUrl()} target="_blank" rel="noopener noreferrer">
@@ -149,7 +156,7 @@ function Index() {
             <img
               src={heroImage}
               alt="Bancada de assistência técnica com celulares e notebook"
-              className="aspect-[4/3.6] w-full rounded-[1.4rem] object-cover"
+              className="aspect-[4/3.6] w-full rounded-[1.4rem] object-cover saturate-125 brightness-105"
             />
           </div>
           <div className="animate-float absolute left-2 bottom-10 flex items-center gap-3 rounded-2xl glass px-4 py-3 sm:-left-8">
@@ -184,11 +191,11 @@ function Index() {
               key={s.title}
               className="group relative overflow-hidden rounded-2xl border border-border bg-panel p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-neon-cyan/60 hover:shadow-neon"
             >
-              <span className="absolute right-5 top-5 font-mono text-xs text-muted-foreground">
+              <span className="absolute right-5 top-5 font-mono text-xs font-semibold text-neon-cyan/70">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <span className="grid size-14 place-items-center rounded-2xl border border-neon-cyan/40 bg-neon-cyan/10 text-neon-cyan transition-all duration-300 group-hover:bg-neon group-hover:text-accent-foreground group-hover:shadow-glow-pink">
-                <s.icon className="size-7" />
+              <span className={cn("icon-tile ring-spin relative grid size-16 place-items-center rounded-2xl text-surface-deep transition-all duration-300 group-hover:-translate-y-1 group-hover:scale-105", s.tile)}>
+                <s.icon className="size-8" strokeWidth={2.1} />
               </span>
               <h3 className="mt-5 font-display text-lg font-bold">{s.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{s.text}</p>
@@ -218,7 +225,7 @@ function Index() {
 
       {/* Footer */}
       <footer className="mt-10 border-t border-border/60 bg-surface-deep/80">
-        <div className="mx-auto flex max-w-7xl flex-col items-center gap-6 px-4 pb-28 pt-10 sm:px-6 md:flex-row md:justify-between">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-6 px-4 pb-28 pt-10 sm:px-6 md:flex-row md:justify-between md:pr-56">
           <Logo />
           <SocialIconRow size="sm" className="justify-center" />
           <p className="font-mono text-xs text-muted-foreground">WhatsApp {WHATSAPP_DISPLAY}</p>

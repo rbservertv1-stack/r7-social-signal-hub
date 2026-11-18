@@ -17,12 +17,12 @@ export function SocialIconRow({ className, size = "md" }: { className?: string; 
           {...linkProps(n)}
           aria-label={n.name}
           className={cn(
-            "social-btn grid place-items-center rounded-xl",
+            "social-btn social-tile grid place-items-center rounded-xl",
             `social-${n.id}`,
-            size === "sm" ? "size-9" : "size-11",
+            size === "sm" ? "size-9" : "size-12",
           )}
         >
-          <n.icon className={cn("social-icon", size === "sm" ? "size-4" : "size-5")} />
+          <n.icon className={cn("social-icon", size === "sm" ? "size-4" : "size-6")} />
         </a>
       ))}
     </div>
@@ -39,12 +39,12 @@ export function SocialCards() {
           {...linkProps(n)}
           className={cn("social-btn group flex flex-col items-center gap-3 rounded-2xl p-4 text-center sm:flex-row sm:text-left", `social-${n.id}`)}
         >
-          <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-surface-deep/60">
-            <n.icon className="social-icon size-6" />
+          <span className="social-tile grid size-14 shrink-0 place-items-center rounded-2xl">
+            <n.icon className="social-icon size-7" />
           </span>
           <span className="min-w-0 max-w-full">
             <span className="block font-display text-sm font-bold tracking-wide">{n.name}</span>
-            <span className="block truncate text-xs opacity-75">{n.url ? n.handle : "Em breve"}</span>
+            <span className="block truncate text-xs opacity-90">{n.url ? n.handle : "Em breve"}</span>
           </span>
         </a>
       ))}
