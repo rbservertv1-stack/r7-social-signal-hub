@@ -32,6 +32,6 @@ export const SOCIAL_NETWORKS: SocialNetwork[] = [
   { id: "tiktok", name: "TikTok", handle: "@r7informatica", url: "https://www.tiktok.com/@r7informatica.solucoes", icon: FaTiktok },
   { id: "youtube", name: "YouTube", handle: "R7 Informática", url: "https://www.youtube.com/@r7informaticasolucoes", icon: FaYoutube },
   { id: "x", name: "X / Twitter", handle: "@r7informatica", url: "@R7INFOTECSOL", icon: FaXTwitter },
-  { id: "telegram", name: "Telegram", handle: "R7 Informática", url: "+55519941377651", icon: FaTelegram },
+  { id: "telegram", name: "Telegram", handle: "R7 Informática", url: "https://t.me/+55519941377651", icon: FaTelegram },
   { id: "linkedin", name: "LinkedIn", handle: "R7 Informática", url: "", icon: FaLinkedinIn },
 ];
